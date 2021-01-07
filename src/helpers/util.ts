@@ -1,16 +1,12 @@
-const toString = Object.toString
-/**
- * 判断是不是日期
- * @param value 
- */
-export function isDate(value: any): value is Date {
-  return toString.call(value) === '[object Date]'
+const _toString = Object.prototype.toString
+
+export function isObject(value: any): value is Object {
+  if (!value) {
+    return false
+  }
+  return _toString.call(value) === '[object Object]'
 }
 
-/**
- * 判断是不是对象
- * @param value 
- */
-export function isObject(value: any): value is Object {
-  return value !== null && typeof value === 'object'
+export function isDate(value: any): value is Date {
+  return _toString.call(value) === '[object Date]'
 }
