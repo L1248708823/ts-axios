@@ -21,4 +21,17 @@ export interface AxiosRequestConfig {
   data?: any
   params?: any
   headers?: any
+  responseType?: XMLHttpRequestResponseType
 }
+
+export interface AxiosResponse {
+  status: number
+  data: any
+  statusText: string
+  headers: any
+  config: AxiosRequestConfig
+  // 实际上是XMLrequest对象实例
+  request: any
+}
+
+export interface AxiosPromise extends Promise<AxiosResponse> {}

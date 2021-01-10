@@ -10,3 +10,15 @@ export function transformRequest(data: any) {
   }
   return data
 }
+
+// 对返回回来的数据做处理 如果返回了JSON 变成对象回去（在不指定responseType的時候，只會返回字符串JSON）
+export function transformResponse(data: any): any {
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data)
+    } catch (error) {
+      // 防止意外情況 第一回沒考慮到
+    }
+  }
+  return data
+}
