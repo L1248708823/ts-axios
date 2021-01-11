@@ -2,8 +2,8 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
 import { parseHeaders } from './helpers/headers'
 function xhr(config: AxiosRequestConfig): AxiosPromise {
-  return new Promise(resolve => {
-    const { data = null, method = 'get', url, headers, responseType } = config
+  return new Promise((resolve, reject) => {
+    const { data = null, method = 'get', url, headers, responseType, timeout } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url, true)
 
@@ -21,10 +21,14 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
       request.responseType = responseType
     }
 
-    // 请求响应变化
-    request.onreadystatechange = function hanldeLoad() {
+    // 请求响应变化 同时处理200-300的网络异常
+    request.onreadystatechange = function handleLoad() {
       // 请求没完成就退出
       if (request.readyState !== 4) {
+        return
+      }
+      // 请求状态码等于0  超时错误或者网络错误
+      if (request.status === 0) {
         return
       }
       const responseHeaders = parseHeaders(request.getAllResponseHeaders())
@@ -37,7 +41,32 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
         config,
         request
       }
-      resolve(response)
+
+      handleResponse(response)
+    }
+
+    // 捕获网络异常错误
+    request.onerror = () => {
+      reject(new Error('Network Error'))
+    }
+
+    // 默认是0 永不超时
+    if (timeout) {
+      request.timeout = timeout
+    }
+    // 捕获超时异常
+    request.ontimeout = () => {
+      reject(new Error('Timeout Error'))
+    }
+
+    // 知识点 函数里面套函数调用 严格来说promise也是一个类
+    // 处理请求异常
+    function handleResponse(response: AxiosResponse) {
+      if (response.status >= 200 && response.status < 300) {
+        resolve(response)
+      } else {
+        reject(new Error(`Request failed with status code ${response.status}`))
+      }
     }
     // 发送
     request.send(data)
