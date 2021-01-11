@@ -1,6 +1,7 @@
 // XHR请求
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
 import { parseHeaders } from './helpers/headers'
+import { createError } from './helpers/error'
 function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
     const { data = null, method = 'get', url, headers, responseType, timeout } = config
@@ -47,7 +48,7 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
 
     // 捕获网络异常错误
     request.onerror = () => {
-      reject(new Error('Network Error'))
+      reject(createError('Network Error', config, null, request))
     }
 
     // 默认是0 永不超时
@@ -56,7 +57,9 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
     }
     // 捕获超时异常
     request.ontimeout = () => {
-      reject(new Error('Timeout Error'))
+      reject(
+        createError(`Timeout of ${config.timeout} ms exceeded`, config, 'ECONNABORTED', request)
+      )
     }
 
     // 知识点 函数里面套函数调用 严格来说promise也是一个类
@@ -65,7 +68,15 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (response.status >= 200 && response.status < 300) {
         resolve(response)
       } else {
-        reject(new Error(`Request failed with status code ${response.status}`))
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        )
       }
     }
     // 发送
