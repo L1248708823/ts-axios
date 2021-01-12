@@ -13,20 +13,24 @@ setTimeout(() => {
   axios({
     method: 'get',
     url: '/error/get'
-  }).then((res) => {
-    console.log(res)
-  }).catch((e) => {
-    console.error(e)
   })
-}, 5000)
+    .then(res => {
+      console.log(res)
+    })
+    .catch((e: AxiosError) => {
+      console.error(e.message)
+    })
+}, 1000)
 
 // 超时处理
-  axios({
-    method: 'get',
-    url: '/error/timeout',
-    timeout: 2000
-  }).then((res) => {
-    console.log(res)
-  }).catch((e:AxiosError) => {
-    console.error(e.config, e)
-  })
+// axios({
+//   method: 'get',
+//   url: '/error/timeout',
+//   timeout: 2000
+// })
+//   .then(res => {
+//     console.log(res)
+//   })
+//   .catch((e: AxiosError) => {
+//     console.error(e)
+//   })
