@@ -49,3 +49,16 @@ export function parseHeaders(headers: string) {
   })
   return parse
 }
+
+/**
+ * 把B的值拷给A
+ * @param to
+ * @param form
+ */
+export function extend<T, U>(to: T, form: U): T & U {
+  for (const key in form) {
+    ;(to as any)[key] = form[key]
+  }
+
+  return to as T & U
+}

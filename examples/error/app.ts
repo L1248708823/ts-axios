@@ -19,6 +19,7 @@ setTimeout(() => {
     })
     .catch((e: AxiosError) => {
       console.error(e.message)
+      console.log(e.request)
     })
 }, 1000)
 
