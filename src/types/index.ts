@@ -1,4 +1,6 @@
-// 模型
+// 这边的模型暴露给外面使用 所以定义的内容不一定和类里面的完全一样 可以隐藏细节
+// 那下一个问题就是业务开发的时候有没有必要
+//
 export type Method =
   | 'get'
   | 'GET'
@@ -60,6 +62,8 @@ export interface Axios {
   put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
+
+  interceptors: {}
 }
 
 export interface AxiosInstance extends Axios {
@@ -67,4 +71,17 @@ export interface AxiosInstance extends Axios {
   <T = any>(config: AxiosRequestConfig): AxiosPromise<T>
 }
 
+//  拦截器对象
+export interface AxiosInterceptorManager<T> {
+  use(resolve: ResolvedFn<T>, reject?: RejectedFn): number
+  eject(id: number): void
+}
+
+// 如果是request 传入的参数是requestConfig 如果是reject错误都有可能
+export interface ResolvedFn<T = any> {
+  (val: T): T | Promise<T>
+}
+export interface RejectedFn {
+  (error: any): any
+}
 export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}

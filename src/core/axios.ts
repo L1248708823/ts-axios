@@ -1,6 +1,34 @@
-import { AxiosRequestConfig, AxiosPromise, Method } from '../types'
+import { resolve } from 'rollup-plugin-node-resolve'
+import {
+  AxiosRequestConfig,
+  AxiosPromise,
+  Method,
+  AxiosResponse,
+  ResolvedFn,
+  RejectedFn
+} from '../types'
 import dispatchRequest from './dispatchRequest'
+import interceptorManager from '../helpers/interceptor'
+interface Interceptors {
+  request: interceptorManager<AxiosRequestConfig>
+  response: interceptorManager<AxiosResponse>
+}
+
+// 这个就相当于interceptor内部了 因为是for循环出来的
+//  ((config: AxiosRequestConfig) => AxiosPromise) 适配dispatch
+interface PromiseChain {
+  resolve: ResolvedFn | ((config: AxiosRequestConfig) => AxiosPromise)
+  reject?: RejectedFn
+}
 export default class Axios {
+  interceptors: Interceptors
+  // TODO: 这边又有个小问题 为啥不直接定义。。。，要通过构造函数 感觉差不多 不过可能是好看点（误？？？
+  constructor() {
+    this.interceptors = {
+      request: new interceptorManager<AxiosRequestConfig>(),
+      response: new interceptorManager<AxiosResponse>()
+    }
+  }
   // 函数重载 这个设计也太强了 一开始没想到ORZ
   // 对应了两种模式
   //  (url: string, config?: AxiosRequestConfig): AxiosPromise
@@ -14,7 +42,29 @@ export default class Axios {
     } else {
       config = url
     }
-    return dispatchRequest(config!)
+    // 处理拦截器逻辑
+    const chain: PromiseChain[] = [
+      {
+        resolve: dispatchRequest,
+        reject: undefined
+      }
+    ]
+    // 之所以是 3 2 1 0 1 2 3 的形式
+    //         请求  dispatch response
+    // 主要是为了执行顺序
+    this.interceptors.request.forEach(interceptor => {
+      chain.unshift(interceptor)
+    })
+    this.interceptors.response.forEach(interceptor => {
+      chain.push(interceptor)
+    })
+    // 目的是为了 可以生成promise链路 一路then下去
+    let promise = Promise.resolve(config)
+    while (chain.length) {
+      const { resolve, reject } = chain.shift()!
+      promise = promise.then(resolve, reject)
+    }
+    return promise
   }
   get(url: string, config?: AxiosRequestConfig): AxiosPromise {
     return this._requestMethodWithoutData('get', url, config)
