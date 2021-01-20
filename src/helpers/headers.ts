@@ -63,9 +63,7 @@ export function flattenHeader(headers: any, method: Method) {
   // 这就是为什么不直接在defaults的headers里面添加各种 要考虑使用的场景
   // console.log(headers,headers[method]);
   headers = deepMerge(headers['common'] || {}, headers[method] || {}, headers)
-  // console.log(headers);
   // 去掉
-  debugger
   const methodsToDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'patch', 'common']
   methodsToDelete.forEach(key => {
     delete headers[key]

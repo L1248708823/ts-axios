@@ -2,7 +2,7 @@ import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import { bindUrl } from '../helpers/url'
 import { transformRequest, transformResponse } from '../helpers/data'
 import { processHeaders, flattenHeader } from '../helpers/headers'
-
+import { transform } from './transform'
 import xhr from './xhr'
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
   processConfig(config)
@@ -18,8 +18,10 @@ export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromis
 function processConfig(config: AxiosRequestConfig): void {
   // 处理路径
   config.url = transformUrl(config)
-  config.headers = transformHeaders(config)
-  config.data = transformData(config)
+  // 新：新增transformRequest
+  config.data = transform(config.data, config.headers, config.transformRequest)
+  // config.headers = transformHeaders(config)
+  // config.data = transformData(config)
   // 在这边再过滤headers应该是考虑到还有拦截器,如果是request拦截前就改了.那拦了个寂寞
   // 主要是在这步之前method是可变的,有可能被拦截器修改
   config.headers = flattenHeader(config.headers, config.method!)
@@ -49,6 +51,8 @@ function transformHeaders(config: AxiosRequestConfig): any {
 }
 
 function transformResponseData(response: AxiosResponse): AxiosResponse {
-  response.data = transformResponse(response.data)
+  // response.data = transformResponse(response.data)
+  // 新增transformResponse
+  response.data = transform(response.data, Headers, response.config.transformResponse)
   return response
 }

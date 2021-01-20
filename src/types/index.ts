@@ -18,6 +18,8 @@ export type Method =
   | 'PATCH'
 
 export interface AxiosRequestConfig {
+  transformRequest?: AxiosTransformer | AxiosTransformer[]
+  transformResponse?: AxiosTransformer | AxiosTransformer[]
   url?: string
   method?: Method
   data?: any
@@ -90,6 +92,13 @@ export interface ResolvedFn<T = any> {
 }
 export interface RejectedFn {
   (error: any): any
+}
+
+/**
+ * transformRequest 和 transformResponse的参数
+ */
+export interface AxiosTransformer {
+  (data: any, headers?: any): any
 }
 
 export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}

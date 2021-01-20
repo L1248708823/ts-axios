@@ -1,4 +1,6 @@
-import { AxiosRequestConfig } from './../types/index'
+import { AxiosRequestConfig } from '../types/index'
+import { processHeaders } from '../helpers/headers'
+import { transformRequest, transformResponse } from '../helpers/data'
 const defaults: AxiosRequestConfig = {
   method: 'get',
   timeout: 0,
@@ -10,7 +12,19 @@ const defaults: AxiosRequestConfig = {
     common: {
       Accept: 'application/json, text/plain, */*'
     }
-  }
+  },
+
+  transformRequest: [
+    function(data: any, headers: any) {
+      headers = processHeaders(headers, data)
+      return transformRequest(data)
+    }
+  ],
+  transformResponse: [
+    function(data: any) {
+      return transformResponse(data)
+    }
+  ]
 }
 
 const methodsNoData = ['delete', 'get', 'options', 'head']

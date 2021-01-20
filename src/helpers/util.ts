@@ -61,6 +61,5 @@ export function deepMerge(...objs: any[]): any {
       }
     })
   })
-  console.log(result)
   return result
 }
