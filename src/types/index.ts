@@ -25,6 +25,8 @@ export interface AxiosRequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  // 签名索引
+  [propName: string]: any
 }
 
 export interface AxiosResponse<T = any> {
@@ -63,7 +65,12 @@ export interface Axios {
 
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  interceptors: {}
+  interceptors: {
+    request: AxiosInterceptorManager<AxiosRequestConfig>
+    response: AxiosInterceptorManager<AxiosResponse>
+  }
+
+  defaults: AxiosRequestConfig
 }
 
 export interface AxiosInstance extends Axios {
@@ -84,4 +91,5 @@ export interface ResolvedFn<T = any> {
 export interface RejectedFn {
   (error: any): any
 }
+
 export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}

@@ -1,4 +1,3 @@
-import { resolve } from 'rollup-plugin-node-resolve'
 import {
   AxiosRequestConfig,
   AxiosPromise,
@@ -9,6 +8,7 @@ import {
 } from '../types'
 import dispatchRequest from './dispatchRequest'
 import interceptorManager from '../helpers/interceptor'
+import mergeConfig from './mergeConfig'
 interface Interceptors {
   request: interceptorManager<AxiosRequestConfig>
   response: interceptorManager<AxiosResponse>
@@ -21,9 +21,11 @@ interface PromiseChain {
   reject?: RejectedFn
 }
 export default class Axios {
+  defaults: AxiosRequestConfig
   interceptors: Interceptors
   // TODO: 这边又有个小问题 为啥不直接定义。。。，要通过构造函数 感觉差不多 不过可能是好看点（误？？？
-  constructor() {
+  constructor(initConfig: AxiosRequestConfig) {
+    this.defaults = initConfig
     this.interceptors = {
       request: new interceptorManager<AxiosRequestConfig>(),
       response: new interceptorManager<AxiosResponse>()
@@ -42,6 +44,8 @@ export default class Axios {
     } else {
       config = url
     }
+
+    config = mergeConfig(this.defaults, config)
     // 处理拦截器逻辑
     const chain: PromiseChain[] = [
       {
@@ -59,12 +63,12 @@ export default class Axios {
       chain.push(interceptor)
     })
     // 目的是为了 可以生成promise链路 一路then下去
-    let promise = Promise.resolve(config)
+    let promise = Promise.resolve(config!)
     while (chain.length) {
       const { resolve, reject } = chain.shift()!
       promise = promise.then(resolve, reject)
     }
-    return promise
+    return promise as Promise<any>
   }
   get(url: string, config?: AxiosRequestConfig): AxiosPromise {
     return this._requestMethodWithoutData('get', url, config)

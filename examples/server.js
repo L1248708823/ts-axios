@@ -15,7 +15,7 @@ app.use(
   webpackDevMiddleware(compiler, {
     publicPath: '/__build__/',
     stats: {
-      colors: true,
+    colors: true,
       chunks: false
     }
   })
@@ -40,7 +40,7 @@ registerSimpleRouter()
 registerBaseRouter()
 registerErrorRouter()
 registerExtendRouter()
-
+registerConfigRouter()
 app.use(router)
 
 const port = process.env.PORT || 9000
@@ -143,6 +143,17 @@ function registerExtendRouter() {
         age: 15,
         name: 'iceNa'
       }
+    })
+  })
+}
+
+
+function registerConfigRouter() {
+  router.post('/config/post', function(req, res) {
+    res.json({
+      status: 200,
+      message: '加油你是最胖的',
+      data:req.body
     })
   })
 }

@@ -1,4 +1,5 @@
-import { isPlainObject } from './util'
+import { AxiosRequestConfig, Method } from './../types/index'
+import { isPlainObject, deepMerge } from './util'
 /**
  *  规范key大小写一致
  * @param hearders
@@ -51,14 +52,23 @@ export function parseHeaders(headers: string) {
 }
 
 /**
- * 把B的值拷给A
- * @param to
- * @param form
+ * 去掉config里面和defaults合并后的 common、post、get 等属性
+ *
  */
-export function extend<T, U>(to: T, form: U): T & U {
-  for (const key in form) {
-    ;(to as any)[key] = form[key]
+export function flattenHeader(headers: any, method: Method) {
+  if (!headers) {
+    return headers
   }
-
-  return to as T & U
+  // 按功能提取有用的
+  // 这就是为什么不直接在defaults的headers里面添加各种 要考虑使用的场景
+  // console.log(headers,headers[method]);
+  headers = deepMerge(headers['common'] || {}, headers[method] || {}, headers)
+  // console.log(headers);
+  // 去掉
+  debugger
+  const methodsToDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'patch', 'common']
+  methodsToDelete.forEach(key => {
+    delete headers[key]
+  })
+  return headers
 }
