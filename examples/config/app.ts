@@ -66,3 +66,14 @@ instance({
 }).then((res) => {
   console.log(res.data)
 })
+const CancelToken = axios.CancelToken;
+let cancel;
+
+axios.get('/base/get', {
+  cancelToken: new CancelToken(function executor(c) {
+    cancel = c;
+  })
+});
+
+// 取消请求
+cancel();
