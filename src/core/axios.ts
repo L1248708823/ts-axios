@@ -1,3 +1,4 @@
+import { CancelToken } from './../types/index'
 import {
   AxiosRequestConfig,
   AxiosPromise,
@@ -31,6 +32,7 @@ export default class Axios {
       response: new interceptorManager<AxiosResponse>()
     }
   }
+  // CancelToken?:CancelToken
   // 函数重载 这个设计也太强了 一开始没想到ORZ
   // 对应了两种模式
   //  (url: string, config?: AxiosRequestConfig): AxiosPromise

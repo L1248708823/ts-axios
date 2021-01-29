@@ -29,6 +29,7 @@ export interface AxiosRequestConfig {
   timeout?: number
   // 签名索引
   [propName: string]: any
+  cancelToken?: CancelToken
 }
 
 export interface AxiosResponse<T = any> {
@@ -103,6 +104,32 @@ export interface RejectedFn {
  */
 export interface AxiosTransformer {
   (data: any, headers?: any): any
+}
+
+/**
+ * CancelToken 是实例类型的接口定义，Canceler 是取消方法的接口定义，CancelExecutor 是 CancelToken 类构造函数参数的接口定义
+ */
+export interface CancelToken {
+  promise: Promise<string>
+  reason: string
+}
+export interface Canceler {
+  (message?: string): void
+}
+
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+export interface CancelTokenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelToken
+
+  source(): CancelTokenSource
 }
 
 export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}

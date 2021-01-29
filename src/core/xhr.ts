@@ -4,7 +4,7 @@ import { parseHeaders } from '../helpers/headers'
 import { createError } from '../helpers/error'
 function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
-    const { data = null, method = 'get', url, headers, responseType, timeout } = config
+    const { data = null, method = 'get', url, headers, responseType, timeout, cancelToken } = config
     const request = new XMLHttpRequest()
     request.open(method.toUpperCase(), url!, true)
 
@@ -20,6 +20,14 @@ function xhr(config: AxiosRequestConfig): AxiosPromise {
     //  判断请求类型
     if (responseType) {
       request.responseType = responseType
+    }
+
+    // 判断取消
+    if (cancelToken) {
+      cancelToken.promise.then(reason => {
+        request.abort()
+        reject(reason)
+      })
     }
 
     // 请求响应变化 同时处理200-300的网络异常

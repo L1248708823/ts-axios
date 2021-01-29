@@ -73,7 +73,6 @@ function fromVal2Start(defaultVal: any, customizeVal: any) {
 /** 合并对象 如headers */
 function deepMergeStrat(defaultVal: any, customizeVal: any) {
   if (isPlainObject(customizeVal)) {
-    console.log(deepMerge(defaultVal, customizeVal))
     return deepMerge(defaultVal, customizeVal)
   } else if (typeof customizeVal !== 'undefined') {
     return customizeVal
